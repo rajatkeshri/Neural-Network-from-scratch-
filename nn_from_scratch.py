@@ -38,6 +38,7 @@ class NN:
         intermediate = input_value
         self.activations[0] = intermediate
 
+        # do a forward pass from input to output
         for i, w in enumerate(self.weights):
             layer1 = np.dot(intermediate,w)
             intermediate = self.sigmoid(layer1)
@@ -48,29 +49,20 @@ class NN:
     def backward(self,error):
         # iterate backwards through the network layers
         for i in reversed(range(len(self.derivatives))):
-            # get activation for previous layer
-            activations = self.activations[i+1]
 
-            # apply sigmoid derivative function
-            delta = error * self.sigmoid_der(activations)
-
-            # reshape delta as to have it as a 2d array
-            delta_re = delta.reshape(delta.shape[0], -1).T
-
-            # get activations for current layer
-            current_activations = self.activations[i]
-
-            # reshape activations as to have them as a 2d column matrix
-            current_activations = current_activations.reshape(current_activations.shape[0],-1)
-
-            # save derivative after applying matrix multiplication
-            self.derivatives[i] = np.dot(current_activations, delta_re)
 
             # backpropogate the next error
+            activations = self.activations[i+1]
+            delta = error * self.sigmoid_der(activations)
+            delta_re = delta.reshape(delta.shape[0], -1).T
+            current_activations = self.activations[i]
+            current_activations = current_activations.reshape(current_activations.shape[0],-1)
+            self.derivatives[i] = np.dot(current_activations, delta_re)
             error = np.dot(delta, self.weights[i].T)
 
     def train(self, inputs,targets,epochs,learning_rate):
 
+        #forward pass and backward pass for every input
         for i in range(epochs):
             sum_errors = 0
             j=0
@@ -104,7 +96,7 @@ class NN:
 
 if __name__ == "__main__":
 
-    #Sound AI
+    #dataset for training model to perform addition
     inputs = np.array([[random()/2 for _ in range(2)] for _ in range(1000)])
     targets = np.array([[i[0] + i[1]] for i in inputs])
 
